@@ -4,6 +4,12 @@ Todas as mudanças relevantes deste projeto são documentadas aqui.
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Não publicado]
+### Adicionado
+- Plano de Gerenciamento de Configuração v1.0 (PGC-ACV-001) em `docs/` (PDF e DOCX).
+### Alterado
+- Imagem dos agentes GoCD com `tzdata` (datas locais corretas nos logs e notas de release).
+- Identidade e área de trabalho dos agentes persistidas em volume (`godata-agente-N`),
+  evitando registros duplicados ao recriar os contêineres.
 
 ## [1.0.3] - 2026-11-25
 ### Adicionado

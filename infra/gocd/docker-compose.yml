@@ -67,6 +67,7 @@ services:
       ACERVO_HOST: host.docker.internal
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - godata-agente-1:/godata          # identidade do agente e área de trabalho
       - m2-agente-1:/home/go/.m2
       - ${ACERVO_REPO:-../..}:/repos/acervo:ro
 
@@ -83,6 +84,7 @@ services:
       ACERVO_HOST: host.docker.internal
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - godata-agente-2:/godata          # identidade do agente e área de trabalho
       - m2-agente-2:/home/go/.m2
       - ${ACERVO_REPO:-../..}:/repos/acervo:ro
 
@@ -97,6 +99,8 @@ services:
 
 volumes:
   godata:
+  godata-agente-1:
+  godata-agente-2:
   m2-agente-1:
   m2-agente-2:
   registry:

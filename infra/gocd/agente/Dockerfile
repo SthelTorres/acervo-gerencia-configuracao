@@ -3,7 +3,7 @@
 # Base oficial do GoCD + ferramentas de build exigidas pelo pipeline:
 #   - JDK 17 (Eclipse Temurin)  -> compilação e testes (Maven Wrapper)
 #   - Docker CLI + Compose      -> empacotamento e implantação
-#   - jq                        -> utilitário para scripts
+#   - jq, tzdata                -> utilitários para scripts e fuso horário
 # A infraestrutura de CI também é um item de configuração versionado.
 # =====================================================================
 ARG GOCD_VERSION=v26.2.0
@@ -14,7 +14,7 @@ FROM eclipse-temurin:17-jdk AS jdk
 FROM gocd/gocd-agent-ubuntu-24.04:${GOCD_VERSION}
 USER root
 RUN apt-get update \
- && apt-get install -y --no-install-recommends jq \
+ && apt-get install -y --no-install-recommends jq tzdata \
  && rm -rf /var/lib/apt/lists/*
 COPY --from=jdk /opt/java/openjdk /opt/jdk-17
 COPY --from=docker-cli /usr/local/bin/docker /usr/local/bin/docker
