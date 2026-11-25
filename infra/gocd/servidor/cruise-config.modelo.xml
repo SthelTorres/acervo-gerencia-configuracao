@@ -15,6 +15,10 @@
   <config-repos>
     <config-repo id="acervo-pipelines" pluginId="yaml.config.plugin">
       <git url="__URL_REPOSITORIO__" branch="main" />
+      <rules>
+        <!-- o repositório só pode definir pipelines no grupo "acervo" -->
+        <allow action="refer" type="pipeline_group">acervo</allow>
+      </rules>
     </config-repo>
   </config-repos>
 </cruise>

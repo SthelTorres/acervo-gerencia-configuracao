@@ -15,11 +15,7 @@ x-git-seguro: &git-seguro
   GIT_CONFIG_VALUE_0: "*"
 
 x-agente: &agente
-  build:
-    context: ./agente
-    args:
-      GOCD_VERSION: ${GOCD_VERSION:-v26.2.0}
-  image: acervo/gocd-agent:${GOCD_VERSION:-v26.2.0}
+  image: acervo-local/gocd-agent:${GOCD_VERSION:-v26.2.0}
   restart: unless-stopped
   depends_on:
     gocd-server:
@@ -55,6 +51,12 @@ services:
   agente-1:
     <<: *agente
     container_name: gocd-agente-1
+    # Somente este serviço constrói a imagem do agente; o agente-2 a reutiliza
+    build:
+      context: ./agente
+      args:
+        GOCD_VERSION: ${GOCD_VERSION:-v26.2.0}
+    pull_policy: build
     environment:
       <<: *git-seguro
       GO_SERVER_URL: http://gocd-server:8153/go
@@ -70,6 +72,7 @@ services:
   agente-2:
     <<: *agente
     container_name: gocd-agente-2
+    pull_policy: never   # imagem local construída pelo agente-1 (nunca buscar no Docker Hub)
     environment:
       <<: *git-seguro
       GO_SERVER_URL: http://gocd-server:8153/go
