@@ -21,9 +21,9 @@
     <description>Acervo - Sistema de Gestão de Biblioteca (TP de Gerência de Configuração e Evolução de Software)</description>
 
     <scm>
-        <connection>scm:git:https://github.com/grupo-gcs/acervo.git</connection>
-        <developerConnection>scm:git:git@github.com:grupo-gcs/acervo.git</developerConnection>
-        <url>https://github.com/grupo-gcs/acervo</url>
+        <connection>scm:git:https://github.com/SthelTorres/acervo-gerencia-configuracao.git</connection>
+        <developerConnection>scm:git:git@github.com:SthelTorres/acervo-gerencia-configuracao.git</developerConnection>
+        <url>https://github.com/SthelTorres/acervo-gerencia-configuracao</url>
         <tag>HEAD</tag>
     </scm>
 

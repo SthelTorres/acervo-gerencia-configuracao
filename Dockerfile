@@ -24,7 +24,7 @@ LABEL org.opencontainers.image.title="Acervo" \
       org.opencontainers.image.version="${VERSAO}" \
       org.opencontainers.image.revision="${COMMIT}" \
       org.opencontainers.image.created="${DATA_BUILD}" \
-      org.opencontainers.image.source="https://github.com/grupo-gcs/acervo" \
+      org.opencontainers.image.source="https://github.com/SthelTorres/acervo-gerencia-configuracao" \
       org.opencontainers.image.licenses="MIT"
 
 RUN groupadd --system acervo && useradd --system --gid acervo --home-dir /app acervo

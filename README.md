@@ -4,6 +4,8 @@ Trabalho Prático de **Gerência de Configuração e Evolução de Software**.
 O Acervo é uma aplicação web (API REST + interface) para cadastro de livros e leitores e controle de empréstimos,
 entregue por um **pipeline de implantação no GoCD** com Integração Contínua, Entrega Contínua e implantação em contêineres Docker.
 
+📄 [Plano de Gerenciamento de Configuração (PDF)](docs/Plano_Gerenciamento_Configuracao_Acervo.pdf) · 🏷️ Releases em produção: `v1.0.2`, `v1.0.3`
+
 | | |
 |---|---|
 | **Linguagem / Framework** | Java 17 · Spring Boot 4.1 · Spring Data JPA · Flyway |

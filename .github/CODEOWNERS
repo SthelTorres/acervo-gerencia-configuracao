@@ -1,10 +1,11 @@
-# Revisores obrigatórios por área (ajuste com os usuários GitHub do grupo)
+# Revisores obrigatórios por área.
+# Para incluir os demais integrantes, acrescente os usuários GitHub de cada um ao lado do dono atual.
 # Pipeline, infraestrutura e scripts de implantação: Gerente de Configuração + Engenheiro DevOps
-/ci.gocd.yaml        @gerente-configuracao @engenheiro-devops
-/ci/                 @gerente-configuracao @engenheiro-devops
-/deploy/             @gerente-configuracao @engenheiro-devops
-/infra/              @engenheiro-devops
-# Migrações de banco exigem revisão do arquiteto
-/src/main/resources/db/  @arquiteto
+/ci.gocd.yaml            @SthelTorres
+/ci/                     @SthelTorres
+/deploy/                 @SthelTorres
+/infra/                  @SthelTorres
+# Migrações de banco: Arquiteto de Software
+/src/main/resources/db/  @SthelTorres
 # Testes de aceitação: Analista de Qualidade
-/acceptance-tests/   @analista-qualidade
+/acceptance-tests/       @SthelTorres
