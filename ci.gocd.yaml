@@ -1,0 +1,212 @@
+# =====================================================================
+#  PIPELINE DE IMPLANTAÇÃO DO ACERVO  -  GoCD "Pipeline as Code"
+# =====================================================================
+#  Este arquivo é lido automaticamente pelo servidor GoCD (Config Repository
+#  com o plugin YAML). Toda alteração no pipeline passa pelo mesmo controle
+#  de versão e de mudanças que o código-fonte.
+#
+#  Fluxo (Value Stream Map):
+#
+#   [git main] ──► acervo-commit ──► acervo-aceitacao ──► acervo-producao
+#                  1. compilacao      1. implantacao-       1. implantacao-producao
+#                  2. testes             homologacao           (aprovação MANUAL)
+#                     ├ unitarios     2. testes-aceitacao    2. publicacao-release
+#                     └ integracao
+#                  3. empacotamento
+#
+#  - Disparo: todo commit na branch main (o GoCD monitora o repositório).
+#  - Versão: rótulo "1.0.<contador>" gerado na Etapa de Commit e propagado
+#    a todos os pipelines seguintes (mesmo artefato do commit à produção).
+#  - Para usar o GitHub em vez do repositório local, troque "git:" pela URL
+#    HTTPS do repositório (ex.: https://github.com/<org>/acervo.git).
+# =====================================================================
+format_version: 10
+
+pipelines:
+
+  # -------------------------------------------------------------------
+  # ETAPA DE COMMIT: compilação, testes de unidade e integração, artefato
+  # -------------------------------------------------------------------
+  acervo-commit:
+    group: acervo
+    display_order_weight: 1
+    label_template: "1.0.${COUNT}"
+    lock_behavior: unlockWhenFinished
+    materials:
+      codigo:
+        git: /repos/acervo
+        branch: main
+    stages:
+      - compilacao:
+          clean_workspace: true
+          jobs:
+            compilar:
+              resources: [java17]
+              timeout: 15
+              artifacts:
+                - build:
+                    source: target/acervo-*.jar
+                    destination: jar
+                - build:
+                    source: target/acervo-*.jar.sha256
+                    destination: jar
+              tasks:
+                - exec:
+                    command: bash
+                    arguments: [ci/scripts/compilar.sh]
+
+      - testes:
+          clean_workspace: true
+          jobs:
+            # Os dois jobs rodam em PARALELO (um em cada agente)
+            unitarios:
+              resources: [java17]
+              timeout: 15
+              artifacts:
+                - test:
+                    source: target/surefire-reports
+                    destination: testes-unitarios
+                - build:
+                    source: target/site/jacoco
+                    destination: cobertura
+              tabs:
+                Cobertura: cobertura/jacoco/index.html
+              tasks:
+                - exec:
+                    command: bash
+                    arguments: [ci/scripts/testes-unitarios.sh]
+            integracao:
+              resources: [java17]
+              timeout: 15
+              artifacts:
+                - test:
+                    source: target/failsafe-reports
+                    destination: testes-integracao
+                - build:
+                    source: target/site/jacoco
+                    destination: cobertura
+              tabs:
+                Cobertura: cobertura/jacoco/index.html
+              tasks:
+                - exec:
+                    command: bash
+                    arguments: [ci/scripts/testes-integracao.sh]
+
+      - empacotamento:
+          clean_workspace: true
+          jobs:
+            imagem-docker:
+              resources: [docker]
+              timeout: 15
+              artifacts:
+                - build:
+                    source: target/imagem.properties
+                    destination: imagem
+              tasks:
+                # "Build once, deploy many": reutiliza o JAR do estágio de compilação
+                - fetch:
+                    pipeline: acervo-commit
+                    stage: compilacao
+                    job: compilar
+                    source: jar
+                    destination: target
+                - exec:
+                    command: bash
+                    arguments: [ci/scripts/construir-imagem.sh]
+
+  # -------------------------------------------------------------------
+  # ETAPA DE TESTE DE ACEITAÇÃO: implanta em homologação e roda o BDD
+  # -------------------------------------------------------------------
+  acervo-aceitacao:
+    group: acervo
+    display_order_weight: 2
+    label_template: "${etapa_commit}"
+    lock_behavior: unlockWhenFinished
+    materials:
+      etapa_commit:
+        pipeline: acervo-commit
+        stage: empacotamento
+      codigo:
+        # Mesmo material do upstream: o GoCD garante a mesma revisão (fan-in)
+        git: /repos/acervo
+        branch: main
+    stages:
+      - implantacao-homologacao:
+          clean_workspace: true
+          jobs:
+            implantar:
+              resources: [docker]
+              timeout: 10
+              tasks:
+                - exec:
+                    command: bash
+                    arguments: [ci/scripts/implantar.sh, homologacao]
+
+      - testes-aceitacao:
+          clean_workspace: true
+          jobs:
+            aceitacao:
+              resources: [java17]
+              timeout: 15
+              artifacts:
+                - test:
+                    source: acceptance-tests/target/surefire-reports
+                    destination: testes-aceitacao
+                - build:
+                    source: acceptance-tests/target/cucumber-report
+                    destination: relatorio
+              tabs:
+                Aceitacao: relatorio/cucumber-report/index.html
+              tasks:
+                - exec:
+                    command: bash
+                    arguments: [ci/scripts/testes-aceitacao.sh]
+
+  # -------------------------------------------------------------------
+  # ETAPA DE LANÇAMENTO: entrega aos usuários (produção)
+  # Entrega Contínua: o botão de release é acionado pelo Gerente de
+  # Configuração após decisão do CCB (aprovação manual).
+  # -------------------------------------------------------------------
+  acervo-producao:
+    group: acervo
+    display_order_weight: 3
+    label_template: "${aceitacao}"
+    lock_behavior: unlockWhenFinished
+    materials:
+      aceitacao:
+        pipeline: acervo-aceitacao
+        stage: testes-aceitacao
+      codigo:
+        git: /repos/acervo
+        branch: main
+    stages:
+      - implantacao-producao:
+          approval:
+            type: manual
+            allow_only_on_success: true
+          clean_workspace: true
+          jobs:
+            implantar:
+              resources: [docker]
+              timeout: 10
+              tasks:
+                - exec:
+                    command: bash
+                    arguments: [ci/scripts/implantar.sh, producao]
+
+      - publicacao-release:
+          clean_workspace: true
+          jobs:
+            release:
+              resources: [docker]
+              timeout: 5
+              artifacts:
+                - build:
+                    source: target/release
+                    destination: notas
+              tabs:
+                Release: notas/release/RELEASE_NOTES.md
+              tasks:
+                - exec:
+                    command: bash
+                    arguments: [ci/scripts/promover-release.sh]
