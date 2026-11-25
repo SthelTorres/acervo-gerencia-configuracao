@@ -37,3 +37,6 @@ infra/gocd/.env
 # artefatos gerados pelos testes de aceitação
 acceptance-tests/target/
 .DS_Store
+
+# backups locais do banco
+backups/

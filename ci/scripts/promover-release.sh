@@ -15,7 +15,7 @@ NOTAS="target/release/RELEASE_NOTES.md"
   echo "- **Data da implantação:** $(date '+%d/%m/%Y %H:%M:%S %Z')"
   echo "- **Commit:** ${COMMIT}"
   echo "- **Imagem:** ${IMAGEM}:${VERSAO}"
-  echo "- **Pipeline:** ${GO_PIPELINE_NAME:-local} #${GO_PIPELINE_COUNTER:-0} (aprovado por ${GO_TRIGGER_USER:-n/d})"
+  echo "- **Pipeline:** ${GO_PIPELINE_NAME:-local} #${GO_PIPELINE_COUNTER:-0} (acionado por ${GO_TRIGGER_USER:-n/d})"
   echo
   echo "## Alterações incluídas (últimos commits da linha principal)"
   echo

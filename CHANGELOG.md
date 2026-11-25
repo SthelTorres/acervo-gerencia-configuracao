@@ -5,7 +5,19 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e
 
 ## [Não publicado]
 
-## [1.0.0] - 2026-11-25
+## [1.0.3] - 2026-11-25
+### Adicionado
+- Script `deploy/backup-banco.sh` com pg_dump compactado e retenção das 7 últimas cópias.
+### Alterado
+- Agentes e servidor GoCD no fuso America/Sao_Paulo (horários corretos nas notas de release).
+- O artefato deixa de registrar `git.build.time` (sempre fixo por causa do build reproduzível).
+
+## [1.0.2] - 2026-11-25
+### Corrigido
+- O artefato passa a registrar o commit completo (`git.commit.id`), permitindo a auditoria física
+  automática no teste de aceitação de rastreabilidade (falha detectada na execução 1.0.1 do pipeline).
+
+## [1.0.1] - 2026-11-25
 ### Adicionado
 - Cadastro, pesquisa, atualização e remoção de livros com validação de ISBN-10/13.
 - Cadastro de leitores (aluno, professor, visitante) com limites e prazos por categoria.
