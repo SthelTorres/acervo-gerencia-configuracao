@@ -67,7 +67,9 @@ public class PassosNaoFuncionais {
 
     @Quando("eu realizo {int} pesquisas consecutivas no acervo")
     public void realizarPesquisas(int quantidade) {
-        api.get("/api/livros"); // aquecimento
+        for (int i = 0; i < 10; i++) {
+            api.get("/api/livros"); // aquecimento da JVM antes de medir
+        }
         for (int i = 0; i < quantidade; i++) {
             long inicio = System.nanoTime();
             Response r = api.get("/api/livros?termo={t}", i % 2 == 0 ? "a" : "software");

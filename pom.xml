@@ -150,7 +150,7 @@
                     <includeOnlyProperties>
                         <includeOnlyProperty>^git.branch$</includeOnlyProperty>
                         <includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
-                        <includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
+                        <includeOnlyProperty>^git.commit.id(.abbrev|.full)?$</includeOnlyProperty>
                         <includeOnlyProperty>^git.commit.time$</includeOnlyProperty>
                         <includeOnlyProperty>^git.commit.message.short$</includeOnlyProperty>
                         <includeOnlyProperty>^git.tags$</includeOnlyProperty>
