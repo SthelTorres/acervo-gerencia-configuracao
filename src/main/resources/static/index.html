@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Acervo · Gestão de Biblioteca</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topo">
+  <div class="marca">
+    <span class="logo" aria-hidden="true">📚</span>
+    <div>
+      <h1>Acervo</h1>
+      <p>Sistema de Gestão de Biblioteca</p>
+    </div>
+  </div>
+  <div class="versao" id="versao" title="Versão em execução">
+    <span class="ambiente" id="ambiente">carregando…</span>
+    <span id="build">versão —</span>
+  </div>
+</header>
+
+<main>
+  <section class="cards" id="cards" aria-label="Indicadores"></section>
+
+  <nav class="abas" role="tablist">
+    <button role="tab" class="aba ativa" data-aba="livros">Livros</button>
+    <button role="tab" class="aba" data-aba="leitores">Leitores</button>
+    <button role="tab" class="aba" data-aba="emprestimos">Empréstimos</button>
+  </nav>
+
+  <div id="mensagem" class="mensagem" role="status" hidden></div>
+
+  <section class="painel" id="painel-livros">
+    <form id="form-livro" class="formulario">
+      <h2>Cadastrar livro</h2>
+      <input name="isbn" placeholder="ISBN (10 ou 13 dígitos)" required>
+      <input name="titulo" placeholder="Título" required>
+      <input name="autor" placeholder="Autor(es)" required>
+      <input name="anoPublicacao" type="number" placeholder="Ano">
+      <input name="categoria" placeholder="Categoria">
+      <input name="exemplares" type="number" min="1" value="1" required>
+      <button type="submit">Cadastrar</button>
+    </form>
+    <div class="lista">
+      <input id="busca" type="search" placeholder="Pesquisar por título ou autor…">
+      <table>
+        <thead><tr><th>Título</th><th>Autor</th><th>ISBN</th><th>Categoria</th><th>Disponíveis</th></tr></thead>
+        <tbody id="tabela-livros"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="painel" id="painel-leitores" hidden>
+    <form id="form-leitor" class="formulario">
+      <h2>Cadastrar leitor</h2>
+      <input name="nome" placeholder="Nome" required>
+      <input name="email" type="email" placeholder="E-mail" required>
+      <select name="tipo">
+        <option value="ALUNO">Aluno (3 livros · 14 dias)</option>
+        <option value="PROFESSOR">Professor (5 livros · 30 dias)</option>
+        <option value="VISITANTE">Visitante (1 livro · 7 dias)</option>
+      </select>
+      <button type="submit">Cadastrar</button>
+    </form>
+    <div class="lista">
+      <table>
+        <thead><tr><th>Nome</th><th>E-mail</th><th>Tipo</th><th>Situação</th></tr></thead>
+        <tbody id="tabela-leitores"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="painel" id="painel-emprestimos" hidden>
+    <form id="form-emprestimo" class="formulario">
+      <h2>Novo empréstimo</h2>
+      <select name="livroId" id="sel-livro" required></select>
+      <select name="leitorId" id="sel-leitor" required></select>
+      <button type="submit">Emprestar</button>
+    </form>
+    <div class="lista">
+      <table>
+        <thead><tr><th>Livro</th><th>Leitor</th><th>Retirada</th><th>Devolver até</th><th></th></tr></thead>
+        <tbody id="tabela-emprestimos"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<footer class="rodape">
+  <a href="swagger-ui.html">Documentação da API (Swagger)</a> ·
+  <a href="actuator/health">Health check</a> ·
+  <a href="actuator/info">Informações de build</a>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>
