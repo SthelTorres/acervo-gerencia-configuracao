@@ -1,0 +1,3 @@
+# O contexto de build da imagem só precisa do JAR já construído
+*
+!target/acervo-*.jar
