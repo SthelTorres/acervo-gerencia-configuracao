@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Configuração inicial do servidor GoCD do projeto Acervo (usada apenas no primeiro boot).
+  - Registra o repositório Git do projeto como "Config Repository": as pipelines
+    são lidas do arquivo ci.gocd.yaml versionado junto com o código (Pipeline as Code).
+  - Define a chave de auto-registro dos agentes.
+  Os marcadores __X__ são substituídos pelo script entrypoint.d/10-semear-configuracao.sh
+-->
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="139">
+  <server agentAutoRegisterKey="__CHAVE_AGENTES__" webhookSecret="__SEGREDO_WEBHOOK__" serverId="__ID_SERVIDOR__" tokenGenerationKey="__CHAVE_TOKENS__">
+    <artifacts>
+      <artifactsDir>artifacts</artifactsDir>
+    </artifacts>
+  </server>
+  <config-repos>
+    <config-repo id="acervo-pipelines" pluginId="yaml.config.plugin">
+      <git url="__URL_REPOSITORIO__" branch="main" />
+    </config-repo>
+  </config-repos>
+</cruise>

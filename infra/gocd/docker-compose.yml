@@ -1,0 +1,98 @@
+# =====================================================================
+# Infraestrutura de CI/CD do Acervo: GoCD (servidor + 2 agentes) e
+# Docker Registry local (repositório de artefatos/imagens).
+#
+#   cd infra/gocd && docker compose up -d --build
+#   GoCD:      http://localhost:8153/go
+#   Registry:  http://localhost:5050/v2/_catalog
+# =====================================================================
+name: gocd-acervo
+
+x-git-seguro: &git-seguro
+  # O repositório é montado do host (dono diferente): libera o safe.directory do Git
+  GIT_CONFIG_COUNT: "1"
+  GIT_CONFIG_KEY_0: safe.directory
+  GIT_CONFIG_VALUE_0: "*"
+
+x-agente: &agente
+  build:
+    context: ./agente
+    args:
+      GOCD_VERSION: ${GOCD_VERSION:-v26.2.0}
+  image: acervo/gocd-agent:${GOCD_VERSION:-v26.2.0}
+  restart: unless-stopped
+  depends_on:
+    gocd-server:
+      condition: service_healthy
+  group_add:
+    - "${DOCKER_SOCKET_GID:-0}"
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+
+services:
+  gocd-server:
+    image: gocd/gocd-server:${GOCD_VERSION:-v26.2.0}
+    container_name: gocd-server
+    restart: unless-stopped
+    ports:
+      - "8153:8153"
+    environment:
+      <<: *git-seguro
+      GOCD_AGENT_AUTO_REGISTER_KEY: ${GOCD_AGENT_AUTO_REGISTER_KEY:-acervo-agentes-locais}
+      ACERVO_REPO_URL: /repos/acervo
+    volumes:
+      - godata:/godata
+      - ./servidor/entrypoint.d:/docker-entrypoint.d:ro
+      - ./servidor/cruise-config.modelo.xml:/seed/cruise-config.modelo.xml:ro
+      - ${ACERVO_REPO:-../..}:/repos/acervo:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:8153/go/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+
+  agente-1:
+    <<: *agente
+    container_name: gocd-agente-1
+    environment:
+      <<: *git-seguro
+      GO_SERVER_URL: http://gocd-server:8153/go
+      AGENT_AUTO_REGISTER_KEY: ${GOCD_AGENT_AUTO_REGISTER_KEY:-acervo-agentes-locais}
+      AGENT_AUTO_REGISTER_RESOURCES: java17,docker
+      AGENT_AUTO_REGISTER_HOSTNAME: agente-1
+      ACERVO_HOST: host.docker.internal
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - m2-agente-1:/home/go/.m2
+      - ${ACERVO_REPO:-../..}:/repos/acervo:ro
+
+  agente-2:
+    <<: *agente
+    container_name: gocd-agente-2
+    environment:
+      <<: *git-seguro
+      GO_SERVER_URL: http://gocd-server:8153/go
+      AGENT_AUTO_REGISTER_KEY: ${GOCD_AGENT_AUTO_REGISTER_KEY:-acervo-agentes-locais}
+      AGENT_AUTO_REGISTER_RESOURCES: java17,docker
+      AGENT_AUTO_REGISTER_HOSTNAME: agente-2
+      ACERVO_HOST: host.docker.internal
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - m2-agente-2:/home/go/.m2
+      - ${ACERVO_REPO:-../..}:/repos/acervo:ro
+
+  registry:
+    image: registry:2
+    container_name: acervo-registry
+    restart: unless-stopped
+    ports:
+      - "5050:5000"
+    volumes:
+      - registry:/var/lib/registry
+
+volumes:
+  godata:
+  m2-agente-1:
+  m2-agente-2:
+  registry:
