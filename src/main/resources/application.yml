@@ -1,0 +1,66 @@
+# =====================================================================
+# Acervo - configuração da aplicação (item de configuração versionado)
+# Valores padrão = ambiente de DESENVOLVIMENTO (H2 em memória).
+# Homologação/Produção sobrescrevem via variáveis de ambiente
+# (ver deploy/env/*.env), seguindo o fator III do Twelve-Factor App.
+# =====================================================================
+spring:
+  application:
+    name: acervo
+  datasource:
+    url: jdbc:h2:mem:acervo;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate        # o esquema é responsabilidade do Flyway
+  flyway:
+    locations: classpath:db/migration,classpath:db/exemplo
+  h2:
+    console:
+      enabled: false
+  jackson:
+    default-property-inclusion: always
+
+server:
+  port: ${PORT:8080}
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,flyway
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  info:
+    env:
+      enabled: true
+    git:
+      mode: full
+    java:
+      enabled: true
+
+info:
+  aplicacao:
+    nome: Acervo
+    descricao: Sistema de Gestão de Biblioteca
+  ambiente: ${ACERVO_AMBIENTE:desenvolvimento}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+# Regras de negócio parametrizáveis
+acervo:
+  multa:
+    valor-diario: 2.00
+    valor-maximo: 50.00
+  emprestimo:
+    max-renovacoes: 1
